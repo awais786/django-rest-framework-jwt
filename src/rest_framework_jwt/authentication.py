@@ -66,6 +66,8 @@ class JSONWebTokenAuthentication(BaseAuthentication):
             token = self.get_token_from_request(request)
         except MissingToken:
             return None
+        except InvalidAuthorizationHeaderPrefix:
+            return None
 
         if apps.is_installed('rest_framework_jwt.blacklist'):
             from rest_framework_jwt.blacklist.models import BlacklistedToken
@@ -92,8 +94,6 @@ class JSONWebTokenAuthentication(BaseAuthentication):
 
         try:
             return cls.get_token_from_authorization_header(authorization_header)
-        except InvalidAuthorizationHeaderPrefix as error:
-            raise exceptions.AuthenticationFailed(error.msg)
         except InvalidAuthorizationCredentials:
             return cls.get_token_from_cookies(request.COOKIES)
 
